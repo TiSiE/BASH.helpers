@@ -1,0 +1,227 @@
+####
+## GO - Directory shortcuts.
+##
+## Version 1.0.0
+##
+###########################################################################
+##
+## The MIT License (MIT)
+##
+## Copyright (c) 2014 Mathias Gelhausen <devel@tisie.de>
+##
+## Permission is hereby granted, free of charge, to any person obtaining
+## a copy of this software and associated documentation files
+## (the "Software"), to deal in the Software without restriction, including
+## without limitation the rights to use, copy, modify, merge, publish,
+## distribute, sublicense, and/or sell copies of the Software, and to
+## permit persons to whom the Software is furnished to do so, subject to
+## the following conditions:
+##
+## The above copyright notice and this permission notice shall be
+## included in all copies or substantial portions of the Software.
+##
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+## OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+## MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+## IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+## CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+## TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+## SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+##
+###########################################################################
+
+####
+## Change working directory or manage shortcuts.
+##
+## Usage:
+##        go                 : List shortcuts.
+##        go + <key> [<dir>] : Adds a shortcut to <dir>.
+##                             If <dir> is empty, uses current working directory
+##        go - <key>         : Deletes shortcut.
+##
+function go() 
+{
+    ####
+    ## Generates the list of defined shortcuts
+    ##
+    function go_list()
+    {
+        local LIST=$(cat $FILE | sort)
+
+        if [ -z "$LIST" ]; then
+            echo "no shortcuts."
+            return
+		fi
+
+		for LINE in $LIST; do
+			printf "%-10s %s\n" "${LINE%%|*}" "${LINE#*|}"
+		done
+	}
+
+    ####
+    ## Adds a shortcut.
+    ##
+    ## $1: The key under which the shortcut should be available
+    ## $2: (optional) The full path to the directory.
+    ##                If omitted, current working directory is assumed.
+    ##
+    function go_add()
+    {
+
+        if [ $# -eq 0 ]; then
+            echo >&2 "no key specified."
+            return
+        fi
+
+        local KEY="$1"
+        local DIR="$2"
+
+        if [ -z "$DIR" ]; then
+            DIR="$(pwd)"
+        fi
+
+        if go_contains "$FILE" "$KEY"; then
+            echo >&2 "key already exists."
+            return
+        fi
+
+        echo "$KEY|$DIR" >> $FILE
+        echo "$KEY -> $DIR created."
+    }
+
+    ####
+    ## Deleted a shortcut
+    ##
+    ## $1: The key of the shortcut to be deleted.
+    ##
+    function go_remove()
+    {
+        local KEY="$1"
+
+        if ! go_contains "$KEY"; then
+            echo >&2 "key does not exists."
+            return 1
+        fi
+
+        #
+        # We have to clear the whole list file,
+        # and populate it again with every shortcut
+        # that should not be deleted.
+        # I found no other way of deleting a single line
+        # in a file.
+        #
+
+        local LIST=$(cat $FILE) # save list temporarly
+        cat /dev/null > $FILE   # Clear list
+
+        for LINE in $LIST; do
+            if [ "$KEY" != "${LINE%%|*}" ]; then
+                #
+                # If the key of the current line is different from the target key
+                # we must put the line back in the file.
+                #
+                echo "$LINE" >> $FILE
+            fi
+        done
+
+        echo "$KEY removed."
+    }
+
+    ####
+    ## Checks wether a key is defined or not
+    ##
+    ## $1: The key to check.
+    ##
+    ## Returns: 0 if the key is defined, 1 if not.
+    ##
+    function go_contains()
+    {
+        local KEY="$1"
+        local LIST=$(cat $FILE)
+
+        for LINE in $LIST; do
+            if [ "$KEY" = "${LINE%%|*}" ]; then
+                return 0
+            fi
+        done
+
+        return 1
+    }
+
+    # The file in which the shortcuts are stored.
+    # Format: <key>|<dir>\n
+    #
+    local FILE=~/.go
+
+    [ ! -f $FILE ] && touch $FILE # create file if it does not exist
+
+    #
+    # Show list when  called w/o arguments.
+    #
+    if [ $# -eq 0 ]; then
+        go_list
+        return
+    fi
+
+    #
+    # Add a shortcut
+    #
+    if [ "+" = "$1" ]; then
+        shift
+        go_add "$@"
+        return
+    fi
+
+    #
+    # Delete a shortcut
+    #
+    if [ "-" = "$1" ]; then
+        shift
+        go_remove "$@"
+        return
+    fi
+
+    #
+    # Change directory
+    #
+
+    local KEY="$1" LIST=$(cat $FILE) DIR="" POSKEY=""
+
+    #
+    # Try to find key in list (exact match)
+    #
+    for LINE in $LIST; do
+        local LINEKEY="${LINE%%|*}";
+        if [ "$KEY" = "$LINEKEY" ]; then
+            #
+            # We found the shortcut, let's change directory
+            #
+            cd "${LINE#*|}"
+            return 0
+        fi
+        if [ -z "$DIR" ] && [[ "$LINEKEY" =~ ^$KEY ]]; then
+            #
+            # We found the first possible match
+            # Save it, but first go on in the loop
+            # maybe we find an exact match
+            #
+            POSKEY="$LINEKEY"
+            DIR="${LINE#*|}"
+        fi
+    done
+
+    if [ -n "$DIR" ]; then
+        #
+        # Change to first best match.
+        #
+        echo "Change to $POSKEY -> $DIR"
+        cd "$DIR"
+        return 0
+    fi
+
+    #
+    # The passed key is not defined.
+    #
+    echo >&2 "key does not exists."
+    return 1
+}
