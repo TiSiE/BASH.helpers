@@ -3,8 +3,6 @@ BASH.helpers
 
 A collection of useful BASH scripts and functions.
 
-  [go](#go)
-
 ## License
 
 All scripts and functions contained in this collection are subject to the
