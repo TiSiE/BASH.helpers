@@ -33,39 +33,12 @@ All scripts and functions contained in this collection are subject to the
  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-## go
+## Functions
 
-"go" is a bash function that create and manage directory shortcuts.
+* [go](https://github.com/TiSiE/BASH.helpers/wiki/go) - Directory Shortcuts
 
-### Installation
 
-source the file "functions/go.func" 
+## Scripts
 
-```
-. functions/go.func
-source functions/go.func
-```
-
-For permanent availability include the above statement in your .bashrc
-
-### Usage
-
-```
-  go                                     # List all defined shortcuts
-
-  go + demo                              # adds a shortcut to the current directory
-                                         # with the name "demo"
-
-  go + test /some/very/often/used/dir    # adds a shortcut to the given directory
-                                         # with the shortcut "test"
-
-  go test                                # jumps to the directory with the shortcut name "test"
-  go te                                  # jumps also to test, because partially typed
-                                         # names are resolved using the first match in list
-
-  go demo                                # jumps to the directory defined under "demo"
-
-  go - test				 # deletes shortcut "test"
-
-```
+* [timer](https://github.com/TiSiE/BASH.helpers/wiki/timer) - Simple console time tracker
 
