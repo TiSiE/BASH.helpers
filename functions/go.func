@@ -1,13 +1,20 @@
 ####
 ## GO - Directory shortcuts.
 ##
-## Version 1.0.0
+## Version 1.0.1
+##
+###########################################################################
+## 
+## This function is part of BASH.helpers
+##
+## Site: https://tisie.github.io/BASH.helpers
+## Git:  https://github.com/TiSiE/BASH.helpers
 ##
 ###########################################################################
 ##
 ## The MIT License (MIT)
 ##
-## Copyright (c) 2014 Mathias Gelhausen <devel@tisie.de>
+## Copyright (c) 2014 Mathias "TiSiE" Gelhausen <devel@tisie.de>
 ##
 ## Permission is hereby granted, free of charge, to any person obtaining
 ## a copy of this software and associated documentation files
@@ -29,6 +36,12 @@
 ## SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ##
 ###########################################################################
+##
+## 1.0.1:
+##       - Adds notice of BASH.helpers and adds some comments.
+##
+##
+
 
 ####
 ## Change working directory or manage shortcuts.
