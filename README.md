@@ -3,6 +3,8 @@ BASH.helpers
 
 A collection of useful BASH scripts and functions.
 
+Version 1.0.0
+
 ## License
 
 All scripts and functions contained in this collection are subject to the
@@ -31,12 +33,15 @@ All scripts and functions contained in this collection are subject to the
  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-## Functions
+## Contents
+
+### Functions
 
 * [go](https://github.com/TiSiE/BASH.helpers/wiki/go) - Directory Shortcuts
 
 
-## Scripts
+### Scripts
 
 * [timer](https://github.com/TiSiE/BASH.helpers/wiki/timer) - Simple console time tracker
 
+## Changes
