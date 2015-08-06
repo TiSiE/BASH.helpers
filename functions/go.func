@@ -1,10 +1,10 @@
 ####
 ## GO - Directory shortcuts.
 ##
-## Version 1.0.1
+## Version 1.1.0
 ##
 ###########################################################################
-## 
+##
 ## This function is part of BASH.helpers
 ##
 ## Site: https://tisie.github.io/BASH.helpers
@@ -14,7 +14,7 @@
 ##
 ## The MIT License (MIT)
 ##
-## Copyright (c) 2014 Mathias "TiSiE" Gelhausen <devel@tisie.de>
+## Copyright (c) 2014 Mathias Gelhausen <devel@tisie.de>
 ##
 ## Permission is hereby granted, free of charge, to any person obtaining
 ## a copy of this software and associated documentation files
@@ -37,10 +37,16 @@
 ##
 ###########################################################################
 ##
+## 1.1.0:
+##	- Improves usability: Choose shortcut from the list by
+##	  typing a number
+## 	- Improves switching directory if only one matching shortcut found.
+##
+##
 ## 1.0.1:
 ##       - Adds notice of BASH.helpers and adds some comments.
 ##
-##
+###########################################################################
 
 
 ####
@@ -48,28 +54,82 @@
 ##
 ## Usage:
 ##        go                 : List shortcuts.
+##        go -l		     : List shortcuts and omit the select prompt.
 ##        go + <key> [<dir>] : Adds a shortcut to <dir>.
 ##                             If <dir> is empty, uses current working directory
 ##        go - <key>         : Deletes shortcut.
 ##
 function go() 
 {
+
     ####
     ## Generates the list of defined shortcuts
+    ## 
+    ## $1: Make user selection? pass anything not empty, if wanted.
+    ## $2: Pattern to filter the list against.
     ##
     function go_list()
     {
         local LIST=$(cat $FILE | sort)
-
+	local I=1
+	local MATCHES=()
+	
         if [ -z "$LIST" ]; then
             echo "no shortcuts."
-            return
+            return 1
+	fi
+
+	local OUT=()
+	for LINE in $LIST; do
+		if [ -n "$1" ]; then
+			if [ -z "$2" ] || [[ "${LINE%%|*}" =~ ^$2 ]]; then
+				MATCHES=("${MATCHES[@]}" "$LINE")
+				OUT=("${OUT[@]}" "$(printf "%3d) %-10s %s\n" $I "${LINE%%|*}" "${LINE#*|}")" )
+				I=$((I+1))
+			fi
+		else
+			OUT=("${OUT[@]}" "$(printf "%3d) %-10s %s\n" $I "${LINE%%|*}" "${LINE#*|}")" )
+			I=$((I+1))
+		fi
+	done
+
+
+	if [ -n "$1" ]; then
+		if [ ${#MATCHES[@]} -eq 1 ]; then
+			local MATCH="${MATCHES[0]}"
+		else
+			echo 
+			printf "%s\n" "${OUT[@]}"
+			echo
+			echo -n "Go to? "
+			read INDEX
+
+			if [[ "$INDEX" =~ ^[0-9]+$ ]]; then
+			    local MATCH="${MATCHES[$((INDEX-1))]}"
+			else
+
+				[ -n "$INDEX" ] && { echo >&2 "Unexpected value."; return 12; }
+				echo "Aborted."
+				return 0
+			fi
 		fi
 
-		for LINE in $LIST; do
-			printf "%-10s %s\n" "${LINE%%|*}" "${LINE#*|}"
-		done
-	}
+
+		local MATCHDIR="${MATCH#*|}"
+
+	    	    echo "Go to $MATCHDIR"
+		    cd "$MATCHDIR"
+	
+		    return 0
+
+	else
+		echo
+		printf "%s\n" "${OUT[@]}"
+	fi
+
+	return 0
+		
+    }
 
     ####
     ## Adds a shortcut.
@@ -172,8 +232,16 @@ function go()
     # Show list when  called w/o arguments.
     #
     if [ $# -eq 0 ]; then
-        go_list
+        go_list 1
         return
+    fi
+
+    #
+    # Show list w/o selection when argument is "-l"
+    #
+    if [ "$1" = "-l" ]; then
+	go_list
+	return
     fi
 
     #
@@ -202,36 +270,25 @@ function go()
 
     #
     # Try to find key in list (exact match)
+    # remember possible matches to provide a list for user selection.
     #
+    local matches=()
+
     for LINE in $LIST; do
-        local LINEKEY="${LINE%%|*}";
+        local LINEKEY="${LINE%%|*}"
         if [ "$KEY" = "$LINEKEY" ]; then
             #
             # We found the shortcut, let's change directory
             #
+	    echo "Go to ${LINE#*|}"
             cd "${LINE#*|}"
             return 0
         fi
-        if [ -z "$DIR" ] && [[ "$LINEKEY" =~ ^$KEY ]]; then
-            #
-            # We found the first possible match
-            # Save it, but first go on in the loop
-            # maybe we find an exact match
-            #
-            POSKEY="$LINEKEY"
-            DIR="${LINE#*|}"
-        fi
-    done
+   done;
 
-    if [ -n "$DIR" ]; then
-        #
-        # Change to first best match.
-        #
-        echo "Change to $POSKEY -> $DIR"
-        cd "$DIR"
-        return 0
-    fi
+   go_list 1 "$KEY" && return
 
+   
     #
     # The passed key is not defined.
     #
