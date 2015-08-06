@@ -3,7 +3,7 @@ BASH.helpers
 
 A collection of useful BASH scripts and functions.
 
-Version 1.0.0
+Version 1.1.0-dev.1
 
 ## License
 
@@ -45,3 +45,8 @@ All scripts and functions contained in this collection are subject to the
 * [timer](https://github.com/TiSiE/BASH.helpers/wiki/timer) - Simple console time tracker
 
 ## Changes
+
+### 1.1.0
+
+* Improves usability of GO function:
+  Shortcuts are selectable from the list by number.
