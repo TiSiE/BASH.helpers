@@ -3,8 +3,6 @@
 #
 # Timer - Track your spent time.
 #
-# VERSION: 1.0.0
-#
 ###########################################################################
 #
 # This script is a part of BASH.helpers
@@ -46,8 +44,6 @@
 # "CONSTANTS"
 ##
 
-declare -r VERSION="1.0.0"
-declare -r BUILD="20141014.1116"
 declare -r DIR=~/.timer
 
 ###########################################################################
@@ -254,7 +250,6 @@ function timer_getTime
 # Option parsing
 #
 FLAG_help=0
-FLAG_version=0
 [ $# -eq 0 ] && FLAG_list=1 || FLAG_list=0
 FLAG_splitlist=0
 FLAG_block=0
@@ -279,7 +274,6 @@ while [ $# -gt 0 ]; do
 
     case "$1" in
     	"-?" | -h | --help) FLAG_help=1; shift ;;
-    	-v | --version) FLAG_help=1; FLAG_version=1; shift ;;
 	-l | --list) FLAG_list=1; shift ;;
 	-L | --list-splitted) FLAG_list=1; FLAG_splitlist=1; shift ;;
 	-a | --start) FLAG_start=1; shift ;;
@@ -373,7 +367,7 @@ fi
 if timer_flag "help"
 then
 	printf "%-35s %59s\n" \
-	       "${0##*/} $VERSION (#$BUILD)" "(c) 2012-2014 Mathias Gelhausen (devel@tisie.de)"
+	       "BASH.helpers > ${0##*/}" "(c) 2014-2015 Mathias Gelhausen (devel@tisie.de)"
 
 	timer_flag version && exit 0	       
 	cat <<End-of-Help
@@ -445,8 +439,6 @@ Options:
 	
 	-? | -h | --help                Shows this help screen and exits.	
 	
-	-v | --version                  Shows version info and exits.			
-
 	
 Arguments:
 	key                             The name of the key. 

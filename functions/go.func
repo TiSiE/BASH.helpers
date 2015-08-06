@@ -1,8 +1,6 @@
 ####
 ## GO - Directory shortcuts.
 ##
-## Version 1.1.0
-##
 ###########################################################################
 ##
 ## This function is part of BASH.helpers
@@ -34,17 +32,6 @@
 ## CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 ## TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ## SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-##
-###########################################################################
-##
-## 1.1.0:
-##	- Improves usability: Choose shortcut from the list by
-##	  typing a number
-## 	- Improves switching directory if only one matching shortcut found.
-##
-##
-## 1.0.1:
-##       - Adds notice of BASH.helpers and adds some comments.
 ##
 ###########################################################################
 
